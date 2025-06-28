@@ -115,9 +115,11 @@ Resources:
       VPCSecurityGroups:
         - !Ref MySecurityGroup
 
+# RDSサブネットグループにパブリックサブネットを追加
   RDSSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
       DBSubnetGroupDescription: "Subnet group for RDS"
       SubnetIds:
         - !Ref PrivateSubnet
+        - !Ref MyPublicSubnet
