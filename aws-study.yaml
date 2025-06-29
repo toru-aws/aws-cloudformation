@@ -100,7 +100,7 @@ Resources:
       SecurityGroupIds:
         - !Ref MySecurityGroup
       SubnetId: !Ref MyPublicSubnet
-      ImageId: ami-078772dab3242ee11
+      ImageId: ami-03598bf9d15814511 
 
   # RDS
   MyRDSInstance:
