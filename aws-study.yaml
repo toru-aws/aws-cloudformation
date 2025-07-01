@@ -9,6 +9,9 @@ Parameters:
   DBMasterUsername:
     Type: String
     Description: "The master username for the RDS database"
+  MyKeyName:
+    Type: String
+    Description: Name of an existing EC2 KeyPair to enable SSH access
 
 Resources:
   # VPC
@@ -33,16 +36,37 @@ Resources:
       Tags:
         - Key: Name
           Value: MyPublicSubnet
+  
+  MyPublicSubnetAZ2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [ 1, !GetAZs "" ]
+      Tags:
+        - Key: Name
+          Value: MyPublicSubnetAZ2
 
   PrivateSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
       CidrBlock: 10.0.2.0/24
-      AvailabilityZone: !Select [ 1, !GetAZs "" ]
+      AvailabilityZone: !Select [ 0, !GetAZs "" ]
       Tags:
         - Key: Name
           Value: PrivateSubnet
+
+  PrivateSubnetAZ2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MyVPC
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: !Select [ 1, !GetAZs "" ]
+      Tags:
+        - Key: Name
+          Value: PrivateSubnetAZ2
 
   # Internet Gateway
   MyInternetGateway:
@@ -58,6 +82,14 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref MyVPC
+  
+  MyPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MyVPC
+      Tags:
+        - Key: Name
+          Value: MyPrivateRouteTable
 
   MyPublicRoute:
     Type: AWS::EC2::Route
@@ -76,7 +108,7 @@ Resources:
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow HTTP, HTTPS, and SSH
+      GroupDescription: Allow ALB traffic and SSH
       VpcId: !Ref MyVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -86,11 +118,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
+          SourceSecurityGroupId: !Ref MyALBSecurityGroup
 
   # EC2 Instance
   MyEC2Instance:
@@ -100,7 +128,8 @@ Resources:
       SecurityGroupIds:
         - !Ref MySecurityGroup
       SubnetId: !Ref MyPublicSubnet
-      ImageId: ami-03598bf9d15814511 
+      ImageId: ami-03598bf9d15814511
+      KeyName: !Ref MyKeyName
 
   # RDS
   MyRDSInstance:
@@ -116,11 +145,67 @@ Resources:
       VPCSecurityGroups:
         - !Ref MySecurityGroup
 
-# RDSサブネットグループにパブリックサブネットを追加
+# RDS
   RDSSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
       DBSubnetGroupDescription: "Subnet group for RDS"
       SubnetIds:
         - !Ref PrivateSubnet
+        - !Ref PrivateSubnetAZ2
+
+  MyALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: MyALB
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref MyALBSecurityGroup
+      Subnets:
         - !Ref MyPublicSubnet
+        - !Ref MyPublicSubnetAZ2
+      Type: application
+
+  MyALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref MyALB
+      Protocol: HTTP
+      Port: 80
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref MyTargetGroup
+
+  MyTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: MyTargetGroup
+      Protocol: HTTP
+      Port: 80
+      VpcId: !Ref MyVPC
+      TargetType: instance
+      Targets:
+        - Id: !Ref MyEC2Instance
+
+  MyALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP traffic
+      VpcId: !Ref MyVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  MyPrivateSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet
+      RouteTableId: !Ref MyPrivateRouteTable
+
+  MyPrivateSubnetAZ2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnetAZ2
+      RouteTableId: !Ref MyPrivateRouteTable
