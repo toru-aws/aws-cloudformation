@@ -147,6 +147,7 @@ Resources:
     DependsOn: RDSSubnetGroup
     Properties:
       DBInstanceClass: db.t4g.micro
+      DBName: aws-study
       Engine: MySQL
       EngineVersion: 8.0.39  # 指定したエンジンバージョン
       MasterUsername: !Ref DBMasterUsername
