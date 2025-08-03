@@ -222,7 +222,6 @@ Resources:
       TargetType: instance
       Targets:
         - Id: !Ref MyEC2Instance
-          port: 80
 
   MyALBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
