@@ -125,11 +125,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          SourceSecurityGroupId: !Ref MyALBSecurityGroup
+          SourceSecurityGroupId: !Ref MyALBSecurityGroup 
         - IpProtocol: tcp
           FromPort: 8080
           ToPort: 8080
-          SourceSecurityGroupId: !Ref MyALBSecurityGroup 
+          CidrIp: 0.0.0.0/0
 
   # EC2 Instance
   MyEC2Instance:
@@ -222,7 +222,7 @@ Resources:
     Properties:
       Name: MyTargetGroup
       Protocol: HTTP
-      Port: 8080
+      Port: 80
       VpcId: !Ref MyVPC
       TargetType: instance
       Targets:
