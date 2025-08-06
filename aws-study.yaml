@@ -126,6 +126,10 @@ Resources:
           FromPort: 80
           ToPort: 80
           SourceSecurityGroupId: !Ref MyALBSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          SourceSecurityGroupId: !Ref MyALBSecurityGroup
 
   # EC2 Instance
   MyEC2Instance:
@@ -211,14 +215,24 @@ Resources:
       Port: 80
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref MyTargetGroup
+          TargetGroupArn: !Ref MyTargetGroup8080
 
-  MyTargetGroup:
+  MyALBListener8080:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref MyALB
+      Protocol: HTTP
+      Port: 8080
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref MyTargetGroup8080
+
+  MyTargetGroup8080:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: MyTargetGroup
+      Name: MyTargetGroup8080
       Protocol: HTTP
-      Port: 80
+      Port: 8080
       VpcId: !Ref MyVPC
       TargetType: instance
       Targets:
@@ -233,6 +247,10 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
