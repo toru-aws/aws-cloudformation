@@ -36,7 +36,7 @@ Resources:
       Tags:
         - Key: Name
           Value: MyPublicSubnet
-  
+
   MyPublicSubnetAZ2:
     Type: AWS::EC2::Subnet
     Properties:
@@ -89,7 +89,7 @@ Resources:
       Tags:
         - Key: Name
           Value: MyPublicRouteTable
-  
+
   MyPrivateRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -129,7 +129,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 8080
           ToPort: 8080
-          SourceSecurityGroupId: !Ref MyALBSecurityGroup
+          SourceSecurityGroupId: !Ref MyALBSecurityGroup 
 
   # EC2 Instance
   MyEC2Instance:
@@ -139,7 +139,7 @@ Resources:
       SecurityGroupIds:
         - !Ref MySecurityGroup
       SubnetId: !Ref MyPublicSubnet
-      ImageId: ami-095af7cb7ddb447ef
+      ImageId: ami-0dc279da1d8643e74
       KeyName: !Ref MyKeyName
       Tags:
         - Key: Name
@@ -215,22 +215,12 @@ Resources:
       Port: 80
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref MyTargetGroup8080
+          TargetGroupArn: !Ref MyTargetGroup
 
-  MyALBListener8080:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref MyALB
-      Protocol: HTTP
-      Port: 8080
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref MyTargetGroup8080
-
-  MyTargetGroup8080:
+  MyTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: MyTargetGroup8080
+      Name: MyTargetGroup
       Protocol: HTTP
       Port: 8080
       VpcId: !Ref MyVPC
@@ -247,10 +237,6 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 8080
-          ToPort: 8080
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
