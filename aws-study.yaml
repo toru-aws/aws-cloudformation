@@ -26,7 +26,7 @@ Resources:
           Value: aws-study-vpc
 
   # Subnet
-  MyPublicSubnet:
+  MyPublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
@@ -35,9 +35,9 @@ Resources:
       AvailabilityZone: !Select [ 0, !GetAZs "" ]
       Tags:
         - Key: Name
-          Value: MyPublicSubnet
+          Value: MyPublicSubnet1
 
-  MyPublicSubnetAZ2:
+  MyPublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
@@ -46,9 +46,9 @@ Resources:
       AvailabilityZone: !Select [ 1, !GetAZs "" ]
       Tags:
         - Key: Name
-          Value: MyPublicSubnetAZ2
+          Value: MyPublicSubnet2
 
-  PrivateSubnet:
+  PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
@@ -56,9 +56,9 @@ Resources:
       AvailabilityZone: !Select [ 0, !GetAZs "" ]
       Tags:
         - Key: Name
-          Value: PrivateSubnet
+          Value: PrivateSubnet1
 
-  PrivateSubnetAZ2:
+  PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyVPC
@@ -66,7 +66,7 @@ Resources:
       AvailabilityZone: !Select [ 1, !GetAZs "" ]
       Tags:
         - Key: Name
-          Value: PrivateSubnetAZ2
+          Value: PrivateSubnet2
 
   # Internet Gateway
   MyInternetGateway:
@@ -108,7 +108,7 @@ Resources:
   MyPublicSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref MyPublicSubnet
+      SubnetId: !Ref MyPublicSubnet1
       RouteTableId: !Ref MyPublicRouteTable
 
   # Security Group
@@ -121,7 +121,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 22
           ToPort: 22
-          CidrIp: 0.0.0.0/0
+          CidrIp: 162.120.185.16/32
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -138,8 +138,8 @@ Resources:
       InstanceType: t2.micro
       SecurityGroupIds:
         - !Ref MySecurityGroup
-      SubnetId: !Ref MyPublicSubnet
-      ImageId: ami-0dc279da1d8643e74
+      SubnetId: !Ref MyPublicSubnet1
+      ImageId: ami-025bbcfb04b076789
       KeyName: !Ref MyKeyName
       Tags:
         - Key: Name
@@ -159,7 +159,6 @@ Resources:
       AllocatedStorage: 20
       DBSubnetGroupName: !Ref RDSSubnetGroup
       VPCSecurityGroups:
-        - !Ref MySecurityGroup
         - !Ref MyRDSSecurityGroup
       Tags:
         - Key: Name
@@ -171,8 +170,8 @@ Resources:
     Properties:
       DBSubnetGroupDescription: "Subnet group for RDS"
       SubnetIds:
-        - !Ref PrivateSubnet
-        - !Ref PrivateSubnetAZ2
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
       Tags:
         - Key: Name
           Value: aws-study-rds-subnetgroup
@@ -200,8 +199,8 @@ Resources:
       SecurityGroups:
         - !Ref MyALBSecurityGroup
       Subnets:
-        - !Ref MyPublicSubnet
-        - !Ref MyPublicSubnetAZ2
+        - !Ref MyPublicSubnet1
+        - !Ref MyPublicSubnet2
       Type: application
       Tags:
         - Key: Name
@@ -222,7 +221,7 @@ Resources:
     Properties:
       Name: MyTargetGroup
       Protocol: HTTP
-      Port: 80
+      Port: 8080
       VpcId: !Ref MyVPC
       TargetType: instance
       Targets:
@@ -242,14 +241,14 @@ Resources:
         - Key: Name
           Value: aws-study-alb-sg
 
-  MyPrivateSubnetRouteTableAssociation:
+  MyPrivateSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PrivateSubnet
+      SubnetId: !Ref PrivateSubnet1
       RouteTableId: !Ref MyPrivateRouteTable
 
-  MyPrivateSubnetAZ2RouteTableAssociation:
+  MyPrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PrivateSubnetAZ2
+      SubnetId: !Ref PrivateSubnet2
       RouteTableId: !Ref MyPrivateRouteTable
