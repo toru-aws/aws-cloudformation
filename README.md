@@ -1,7 +1,7 @@
 README
 # AWS環境構築（CloudFormation初級編）
 
-このプロジェクトは、**AWS CloudFormation**を使用して本番環境を想定したインフラ構築を自動化する学習課題です。  
+このプロジェクトは、**AWS CloudFormation**を使用して本番環境を想定したインフラ構築を自動化する学習。  
 RaiseTech AWSコースで学んだ内容をもとに、テンプレートからStackを作成し、アプリケーションが動作する環境を構築しました。
 
 ---
@@ -22,6 +22,14 @@ CloudFormationテンプレートを用いて、以下のAWSリソースを自動
 
 ---
 
+## リポジトリ構成
+
+```bash
+AWS-CloudFormation
+├
+└── cloudformation-aws-study.yaml
+└── README.md
+```
 ## 使用技術
 
 | カテゴリ | 使用技術 |
@@ -35,17 +43,13 @@ CloudFormationテンプレートを用いて、以下のAWSリソースを自動
 
 ---
 
-## 構成図（Architecture）
+## 構成図
 
 <img width="810" height="702" alt="スクリーンショット 2025-10-25 161034" src="https://github.com/user-attachments/assets/d32b09eb-2ebb-4d54-b5cd-3f685cdf6de1" />
 
-> ※ 構成図例：  
-> VPC内に2つのAZ、PublicサブネットにEC2とALB、PrivateサブネットにRDSを配置。  
-> ALB → EC2 → RDSの通信をSecurityGroupで制御。
-
 ---
 
-## デプロイ手順（Setup）
+## デプロイ手順
 
 1. CloudFormationテンプレート（YAML）をAWSコンソールからアップロード  
 2. 以下のパラメータを入力してスタックを作成  
@@ -75,32 +79,16 @@ CloudFormationテンプレートを用いて、以下のAWSリソースを自動
   → 1文字のミスでリソースが作成できなくなるため、YAML構文や依存関係を細かく確認
 - リソース間の依存関係を整理して構築の流れを理解（例：RDSSubnetGroup → RDSInstance）
 - セキュリティグループ設定の重要性を学習  
-  → SSH（22番ポート）は特定IPのみ許可、RDSはEC2からのみアクセス可能に設定
+  → SSH（22番ポート）は特定IPのみ許可することを指摘される。RDSはEC2からのみアクセス可能に設定
 - CloudFormationと実際のAWS管理コンソール操作の対応関係を把握  
   → 「Infrastructure as Code」の考え方を実践的に理解
 - GitHubでのコード管理、ブランチ運用、VSCodeとPowerShellの連携操作に慣れた
+- Testブランチで実際に環境構築作業して、講師陣にPRレビューしてもらいFBを受けてmainブランチにマージという現場のような経験を得る
 
 ---
 
 ##  今後の改善点
 
-- テンプレート内の変数やパラメータをより汎用的に設定（例：VPC CIDRなど）  
-- 出力情報（Outputs）を追加して、構築結果の確認を自動化  
+- テンプレート内の変数やパラメータをより汎用的に設定
 - CloudFormationのRollbackやChangeSet機能の活用  
 - ALBのHTTPS化対応（証明書の自動発行）
-
----
-
-## リポジトリ構成
-
-```bash
-.
-├── templates/
-│   └── cloudformation-aws-study.yaml   # CloudFormationテンプレート
-├── images/
-│   └── cloudformation-architecture.png # 構成図
-└── README.md
-🗒️ 備考
-本プロジェクトはRaiseTech AWSコース内「CloudFormation初級編」の課題です。
-学習目的として構築していますが、本番構成を意識し、再現性とセキュリティを重視しました。
-テストブランチ上でアプリの動作確認を完了しています。
