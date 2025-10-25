@@ -90,5 +90,4 @@ AWS-CloudFormation
 ##  今後の改善点
 
 - テンプレート内の変数やパラメータをより汎用的に設定
-- CloudFormationのRollbackやChangeSet機能の活用  
 - ALBのHTTPS化対応（証明書の自動発行）
