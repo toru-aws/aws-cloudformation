@@ -35,7 +35,7 @@ AWS-CloudFormation
 | カテゴリ | 使用技術 |
 |-----------|-----------|
 | インフラ構築 | AWS CloudFormation |
-| サービス | VPC, EC2, RDS, ALB, IAM, Route53 |
+| サービス | VPC, EC2, RDS, ALB, IAM, |
 | 開発環境 | VSCode / GitHub / PowerShell |
 | OS・AMI | Amazon Linux 2 |
 | DB | MySQL 8.0.39 |
